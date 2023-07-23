@@ -1,15 +1,11 @@
 "use server";
 
 import { z } from "zod";
-
-interface GenericIssue {
-  code: string;
-  message: string;
-}
+import { GenericIssue } from "./utils/errors/GenericIssue";
 
 const specimentInputSchema = z.object({
-  genus: z.string(),
-  species: z.string(),
+  genus: z.string().nonempty(),
+  species: z.string().nonempty(),
   subspecies: z.string().optional(),
   variety: z.string().optional(),
   passcode: z.string().min(6),
@@ -22,8 +18,8 @@ export async function addSpecimen(data: FormData) {
   try {
     input = specimentInputSchema.parse(inputAsObject);
   } catch (error) {
-    console.log(error);
     if (error instanceof z.ZodError) {
+      console.error(error.issues);
       return { issues: error.issues };
     }
     return {
